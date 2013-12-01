@@ -40,21 +40,28 @@ class LogEntry(object):
 class CallLogEntry(LogEntry):
     """log entry for a call"""
 
-    def __init__(self, args, kwargs):
+    def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
         LogEntry.__init__(self)
 
 
+    def reprArgs(self):
+        return ', '.join([repr(arg) for arg in self.args])
+
+
+    def reprKwArgs(self):
+        return ', '.join(['%s=%r' % item
+                          for item in sorted(self.kwargs.items())])
+
+
+    def reprCallSignature(self):
+        reprs = [r for r in [self.reprArgs(), self.reprKwArgs()] if r]
+        return ', '.join(reprs)
+
+
     def __repr__(self):
-        return (
-            '<%s ' % self.__class__.__name__ +
-            ', '.join([
-                ', '.join([repr(arg) for arg in self.args]),
-                ', '.join(['%s=%r' % pair for pair in self.kwargs.items()])
-            ]) +
-            '>'
-        )
+        return '<%s %s>' % (self.__class__.__name__, self.reprCallSignature())
 
 
 class GetAttrLogEntry(LogEntry):
@@ -82,7 +89,7 @@ class Sham(object):
 
 
     def __call__(self, *args, **kwargs):
-        _log(self, CallLogEntry(args, kwargs))
+        _log(self, CallLogEntry(*args, **kwargs))
 
 
     def __getattr__(self, name):
@@ -115,7 +122,7 @@ def assertCallCount(sham, count):
 def assertCalledWith(sham, *args, **kwargs):
     """assert we were called at least once with these args"""
 
-    match_entry = CallLogEntry(args, kwargs)
+    match_entry = CallLogEntry(*args, **kwargs)
     # We could use any() in Python 2.5+, but this gives us 2.4 compat
     for call in filterLog(sham, CallLogEntry):
         if call[1] == match_entry:

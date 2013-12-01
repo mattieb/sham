@@ -51,11 +51,17 @@ class ShamTestCase(unittest.TestCase):
 
         s = Sham()
         s(True, foo='bar')
+        s(False)
         calls = sham.filterLog(s, sham.CallLogEntry)
-        self.assertEqual(len(calls), 1)
+        self.assertEqual(len(calls), 2)
+
         call = calls[0][1]
-        self.assertEqual(call, sham.CallLogEntry((True,), {'foo': 'bar'}))
+        self.assertEqual(call, sham.CallLogEntry(True, foo='bar'))
         self.assertEqual(repr(call), "<CallLogEntry True, foo='bar'>")
+
+        call = calls[1][1]
+        self.assertEqual(call, sham.CallLogEntry(False))
+        self.assertEqual(repr(call), '<CallLogEntry False>')
 
 
     def test_callCount(self):
