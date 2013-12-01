@@ -21,13 +21,14 @@
 
 
 import time
+import weakref
 
 
 """test doubles"""
 
 
 # data on all sham shenanigans goes here
-_d = {}
+_d = weakref.WeakKeyDictionary()
 
 
 class LogEntry(object):
@@ -90,6 +91,11 @@ class Sham(object):
 
     def __call__(self, *args, **kwargs):
         _log(self, CallLogEntry(*args, **kwargs))
+        try:
+            return _d[self]['return']
+        except KeyError:
+            retval = _d[self]['return'] = Sham()
+            return retval
 
 
     def __getattr__(self, name):

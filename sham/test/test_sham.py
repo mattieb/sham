@@ -97,4 +97,13 @@ class ShamTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, sham.assertCalledWith, s, 42, a='b')
 
 
+    def test_callReturn(self):
+        """call returns a consistent Sham"""
+
+        s1 = Sham()
+        s2 = s1()
+        assert isinstance(s1(), Sham)
+        assert s1() is s2
+
+
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
